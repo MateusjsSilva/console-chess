@@ -1,12 +1,13 @@
 ﻿using ConsoleChess.Entities.Board;
 using ConsoleChess.Entities.Board.Enums;
+using ConsoleChess.Entities.Board.Exceptions;
 using ConsoleChess.Entities.Chess;
 
 namespace ConsoleChess
 {
     internal class Screen
     {
-        public static void PrintGame(ChessGame chessGame, bool[,] possiblePositions)
+        public static void PrintGame(ChessGame chessGame, bool[,]? possiblePositions)
         {
             Console.Clear();
 
@@ -37,7 +38,7 @@ namespace ConsoleChess
             Console.WriteLine("----------------------------------------");
         }
 
-        public static void PrintBoard(Board board, bool[,] possiblePositions)
+        public static void PrintBoard(Board board, bool[,]? possiblePositions)
         {
             ConsoleColor originalBackground = ConsoleColor.Black;
             ConsoleColor background1 = ConsoleColor.Blue;
@@ -103,7 +104,6 @@ namespace ConsoleChess
                     Console.BackgroundColor = originalBackground;
                 }
             }
-
             Console.BackgroundColor = originalBackground;
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("          a  b  c  d  e  f  g  h\n");
@@ -148,9 +148,24 @@ namespace ConsoleChess
 
         public static ChessPosition ReadChessPosition()
         {
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(input) || input.Length < 2)
+            {
+                throw new BoardException("Invalid input. Please provide a valid chess position (e.g., 'e2').");
+            }
+
             char column = input[0];
-            int row = int.Parse(input[1] + "");
+            if (column < 'a' || column > 'h')
+            {
+                throw new BoardException("Invalid column. Please enter a letter between 'a' and 'h'.");
+            }
+
+            if (!int.TryParse(input[1].ToString(), out int row) || row < 1 || row > 8)
+            {
+                throw new BoardException("Invalid row. Please enter a number between 1 and 8.");
+            }
+
             return new ChessPosition(column, row);
         }
 

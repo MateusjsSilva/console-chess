@@ -26,9 +26,6 @@ namespace ConsoleChess.Entities.Chess
 
         private void CheckPosition(int rowModifier, int columnModifier)
         {
-            if (Position == null)
-                return;
-
             _position.SetValues(Position.Row + rowModifier, Position.Column + columnModifier);
             while (Board.IsValidPosition(_position) && CanMove(_position))
             {

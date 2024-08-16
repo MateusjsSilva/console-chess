@@ -18,14 +18,14 @@ namespace ConsoleChess.Entities.Chess
 
         public ChessGame()
         {
-            Board = new Board.Board(8, 8);
-            _pieces = new HashSet<Piece>();
-            _captured = new HashSet<Piece>();
+            this.Board = new Board.Board(8, 8);
+            this._pieces = new HashSet<Piece>();
+            this._captured = new HashSet<Piece>();
 
-            VulnerableEnPassant = null;
-            Turn = 1;
-            CurrentPlayer = Color.White;
-            IsFinished = false;
+            this.VulnerableEnPassant = null;
+            this.Turn = 1;
+            this.CurrentPlayer = Color.White;
+            this.IsFinished = false;
 
             PlacePieces();
         }
@@ -38,7 +38,10 @@ namespace ConsoleChess.Entities.Chess
 
         public static Color Opponent(Color color)
         {
-            return color == Color.White ? Color.Black : Color.White;
+            if (color == Color.White)
+                return Color.Black;
+
+            return Color.White;
         }
 
         public bool IsInCheck(Color color)
@@ -46,8 +49,8 @@ namespace ConsoleChess.Entities.Chess
             Piece king = King(color);
             foreach (Piece piece in GetInPlay(Opponent(color)))
             {
-                bool[,] moves = piece.PossibleMoves();
-                if (moves[king.Position.Row, king.Position.Column])
+                bool[,] matrix = piece.PossibleMoves();
+                if (matrix[king.Position.Row, king.Position.Column])
                     return true;
             }
             return false;
@@ -55,8 +58,8 @@ namespace ConsoleChess.Entities.Chess
 
         public Piece ExecuteMove(Position origin, Position destination)
         {
-            Piece piece = Board.RemovePiece(origin);
-            Piece capturedPiece = Board.RemovePiece(destination);
+            Piece? piece = Board.RemovePiece(origin);
+            Piece? capturedPiece = Board.RemovePiece(destination);
 
             piece.IncrementMoveCount();
             Board.AddPiece(piece, destination);
@@ -240,7 +243,7 @@ namespace ConsoleChess.Entities.Chess
 
         public void ValidateDestinationPosition(Position origin, Position destination)
         {
-            if (!Board.GetPiece(origin).CanMove(destination))
+            if (!Board.GetPiece(origin).IsMovePossible(destination))
                 throw new BoardException("You cannot move to that position!");
         }
 
@@ -252,7 +255,8 @@ namespace ConsoleChess.Entities.Chess
         private Piece King(Color color)
         {
             foreach (Piece piece in GetInPlay(color))
-                if (piece is King) return piece;
+                if (piece is King)
+                    return piece;
 
             throw new BoardException("There is no " + color + " King on the board!");
         }
